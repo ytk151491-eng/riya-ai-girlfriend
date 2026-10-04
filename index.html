@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="hi"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#140d1d"><title>Riya AI — Real AI Chat</title>
+<style>
+:root{--bg:#100b17;--panel:#1b1325;--panel2:#24192f;--pink:#ff6da9;--purple:#a98bff;--text:#fff7fb;--muted:#b8aabd;--line:#3b2948}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#33203f 0,#100b17 55%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+.app{max-width:540px;margin:auto;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;gap:12px;padding:14px 2px;border-bottom:1px solid var(--line)}
+.avatar{width:54px;height:54px;flex:0 0 54px;border-radius:50%;display:grid;place-items:center;font-size:27px;background:linear-gradient(135deg,#ffb4d1,#a98bff);box-shadow:0 0 24px #ff6da944;border:2px solid #ffffff35}
+.name{font-size:18px;font-weight:800}.status{font-size:12px;color:#a7f3c2;margin-top:2px}.tag{margin-left:auto;font-size:11px;border:1px solid #67465e;border-radius:20px;padding:6px 9px;color:#ffd1e4}
+.hero{padding:16px 2px 10px}.hero h1{font-size:22px;margin:0 0 5px}.hero p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+.chat{flex:1;display:flex;flex-direction:column;gap:11px;padding:12px 0 18px;overflow:auto;min-height:220px}
+.msg{max-width:88%;padding:11px 13px;border-radius:17px;line-height:1.45;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.bot{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:5px}
+.user{align-self:flex-end;background:linear-gradient(135deg,#b56bcb,#8e67dc);border-bottom-right-radius:5px}
+.time{font-size:10px;color:#c6b5ce;margin-top:5px}.typing{font-size:12px;color:var(--muted);padding:4px 3px}
+.quick{display:flex;gap:7px;overflow-x:auto;padding:2px 0 12px}.quick button{white-space:nowrap;background:#21162b;border:1px solid var(--line);color:#f5d9e8;border-radius:20px;padding:9px 12px;font-size:12px}
+.composer{position:sticky;bottom:0;background:linear-gradient(180deg,#100b1700,#100b17 18%);padding:10px 0 calc(12px + env(safe-area-inset-bottom))}
+.inputrow{display:flex;gap:8px;align-items:center;background:#20162a;border:1px solid #493253;border-radius:23px;padding:7px}
+#message{min-width:0;flex:1;background:transparent;border:0;outline:none;color:white;font:inherit;padding:9px 7px;font-size:14px}
+.btn{border:0;display:grid;place-items:center;width:43px;height:43px;border-radius:50%;color:white;font-size:18px;cursor:pointer}
+.send{background:linear-gradient(135deg,var(--pink),#9e73ff)}.mic{background:#35223f;border:1px solid #63426f}.mic.listening{background:#d83f78;box-shadow:0 0 0 5px #d83f7833}
+.callrow{display:flex;gap:8px;margin-top:9px}.call{flex:1;border:1px solid #5a3b68;background:#261a32;color:#ffe2ef;border-radius:14px;padding:11px;font-weight:650}
+.call.primary{background:linear-gradient(135deg,#ef6aa8,#9869e7);border:0;color:white}
+.note{text-align:center;font-size:10px;color:#8e7d98;line-height:1.4;margin-top:10px}
+@media(min-width:540px){body{padding:16px 0}.app{border:1px solid #382541;border-radius:28px;min-height:calc(100dvh - 32px);overflow:hidden;box-shadow:0 20px 90px #0008}}
+</style></head><body><div class="app">
+<header><div class="avatar">🌸</div><div><div class="name">Riya <span style="font-size:11px;color:#ffb3d3">AI</span></div><div class="status" id="status">● AI service status check…</div></div><div class="tag">REAL AI</div></header>
+<section class="hero"><h1>Hey, main Riya hoon 💗</h1><p>Apni baat Hindi ya Hinglish mein likho ya mic dabakar bolo. Main ek fictional AI companion hoon, real person nahi.</p></section>
+<main class="chat" id="chat" aria-live="polite"><div class="msg bot">Hii 😊 Main Riya hoon. Aaj tumhare mann mein kya chal raha hai?<div class="time">Riya · abhi</div></div></main>
+<div class="quick"><button data-msg="Aaj mera din achha nahi tha">Aaj din achha nahi tha 💗</button><button data-msg="Mujhe koi funny baat sunao">Kuch funny sunao 😂</button><button data-msg="Tumhara naam kya hai?">Tumhara naam? 🌸</button><button data-msg="Bangla mein baat kar sakti ho?">Bangla? 💬</button></div>
+<footer class="composer"><div class="inputrow"><button class="btn mic" id="mic" title="Hindi mein bolo">🎙️</button><input id="message" placeholder="Riya ko message likho…" autocomplete="off"><button class="btn send" id="send">➤</button></div>
+<div class="callrow"><button class="call primary" id="voiceReply">🔊 Riya ki awaaz</button><button class="call" id="stopVoice">⏹ Awaaz band</button></div>
+<div class="note">Real AI chat backend se chalta hai. Mic aur speech browser support par depend karte hain. AI API usage charges/limits apply ho sakte hain.</div></footer></div>
+<script>
+const chat=document.getElementById('chat'),input=document.getElementById('message'),statusEl=document.getElementById('status'),mic=document.getElementById('mic');
+let history=[],lastReply="Hii 😊 Main Riya hoon. Aaj tumhare mann mein kya chal raha hai?",recognition=null;
+function addMessage(text,who){const wrap=document.createElement('div');wrap.className='msg '+(who==='user'?'user':'bot');wrap.textContent=text;const time=document.createElement('div');time.className='time';time.textContent=(who==='user'?'Tum':'Riya')+' · abhi';wrap.appendChild(time);chat.appendChild(wrap);chat.scrollTop=chat.scrollHeight;return wrap}
+async function send(text){text=(text??input.value).trim();if(!text)return;input.value='';addMessage(text,'user');history.push({role:'user',text});
+ const typing=document.createElement('div');typing.className='typing';typing.textContent='Riya tumhara message samajh rahi hai…';chat.appendChild(typing);chat.scrollTop=chat.scrollHeight;
+ try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:history.slice(-16)})});const data=await r.json();if(!r.ok)throw new Error(data.error||'AI server error');lastReply=data.reply;history.push({role:'assistant',text:lastReply});typing.remove();addMessage(lastReply,'bot');}
+ catch(e){typing.remove();addMessage('AI connection abhi nahi ho raha: '+e.message+'\\nServer/API key setup check karo.','bot');}}
+document.getElementById('send').onclick=()=>send();input.addEventListener('keydown',e=>{if(e.key==='Enter')send()});document.querySelectorAll('[data-msg]').forEach(b=>b.onclick=()=>send(b.dataset.msg));
+function speak(text){if(!('speechSynthesis'in window)){alert('Is browser mein text-to-speech available nahi hai.');return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='hi-IN';u.rate=.95;u.pitch=1.12;const v=speechSynthesis.getVoices().find(x=>x.lang.toLowerCase().startsWith('hi'));if(v)u.voice=v;speechSynthesis.speak(u)}
+document.getElementById('voiceReply').onclick=()=>speak(lastReply);document.getElementById('stopVoice').onclick=()=>speechSynthesis?.cancel();
+function startMic(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Chrome Android try karo ya keyboard ka mic use karo.');return}recognition=new SR();recognition.lang='hi-IN';recognition.interimResults=false;recognition.onstart=()=>{mic.classList.add('listening');mic.textContent='🔴'};recognition.onend=()=>{mic.classList.remove('listening');mic.textContent='🎙️'};recognition.onerror=e=>alert('Mic error: '+e.error+'. Permission/internet check karo.');recognition.onresult=e=>send(e.results[0][0].transcript);recognition.start()}
+mic.onclick=startMic;
+fetch('/api/health').then(r=>r.json()).then(d=>statusEl.textContent=d.aiConfigured?'● AI connected':'● Setup needed: API key').catch(()=>statusEl.textContent='● Server se connect nahi hua');
+if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=()=>{};
+</script></body></html>
